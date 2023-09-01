@@ -101,17 +101,37 @@ app.get('/restaurants',async (req,res)=>{
     res.send(meals)
 })
 
- app.post('/placeOrder', async(req,res)=>{
-    // console.log(res)
-    res.send(req.body)
- })
 
-// app.post('/placeOrder', async(res,req)=>{
-//     console.log('post call for place order');
-//     const order = req.body;
-//     console.log(order)
-//     res.send('post call')
-//  })
+app.get('/orders',async (req,res)=>{
+    let query={}
+    let email= req.query.email
+    if(email){
+        query={email:email}
+    }
+    let orders= await db.collection('orders').find(query).toArray()
+    res.send(orders)
+})
+
+app.post('/placeOrder', async (req, res) => {
+    console.log('meraa');
+    try {
+        const result = await db.collection('orders').insertOne(req.body);
+        res.send(result);
+    } catch (err) {
+        console.log(err);
+    }
+});
+app.post('/orderDetails', async (req, res)=>{
+    let query={}
+    if(Array.isArray(req.body.id)){
+    query={menu_id:{$in:req.body.id}}
+    let foodlist=await db.collection('RestaurantMenu').find(query).toArray();
+    res.send(foodlist)
+    
+  }else{
+    res.send('Invalid cnnncncncn input')
+  }
+})
 
 app.listen(port,()=>{
     console.log(`runs on ${port}`)
